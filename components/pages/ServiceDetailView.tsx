@@ -3,7 +3,7 @@
 import { Badge, Button, Icon, Rule } from "@/components/ds";
 import { NavLink } from "@/components/site/NavLink";
 import { Schema } from "@/components/site/dia";
-import { Head, K, Sec, Wrap } from "@/components/site/ui";
+import { CtaBand, Head, K, Sec, Wrap } from "@/components/site/ui";
 import { PROCESS, type Service } from "@/lib/data";
 
 export function ServiceDetailView({ service, others }: { service: Service; others: Service[] }) {
@@ -125,24 +125,11 @@ export function ServiceDetailView({ service, others }: { service: Service; other
           ))}
         </div>
       </Sec>
-      <Sec tone="deep" tight>
-        <div className="split" style={{ alignItems: "end" }}>
-          <div className="stack-lg">
-            <K sig>Prochaine étape</K>
-            <h2 className="h-1" data-split style={{ color: "#fff", maxWidth: "16ch" }}>
-              Un premier échange de trente minutes.
-            </h2>
-          </div>
-          <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
-            <p className="lead" style={{ color: "var(--text-muted)" }}>
-              Vous repartez avec un avis franc, un ordre de grandeur de budget et les prochaines étapes.
-            </p>
-            <Button size="lg" iconRight="arrow-right" data-magnetic href="/contact">
-              Parlons de votre projet
-            </Button>
-          </div>
-        </div>
-      </Sec>
+      <CtaBand
+        title="Un premier échange de trente minutes."
+        lead="Vous repartez avec un avis franc, un ordre de grandeur de budget et les prochaines étapes."
+        cta={{ label: "Parlons de votre projet", href: "/contact" }}
+      />
     </div>
   );
 }

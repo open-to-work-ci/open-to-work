@@ -2,6 +2,7 @@
 
 import type { CSSProperties, InputHTMLAttributes } from "react";
 import { useId, useState } from "react";
+import { fieldLabelStyle } from "./fieldLabelStyle";
 import { Icon } from "./Icon";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "style"> {
@@ -17,20 +18,7 @@ export function Input({ label, hint, error, icon, type = "text", id, style, ...r
   const uid = id || useId();
   return (
     <label htmlFor={uid} style={{ display: "grid", gap: "var(--space-2)", ...style }}>
-      {label ? (
-        <span
-          style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: "var(--text-xs)",
-            fontWeight: "var(--fw-semibold)",
-            letterSpacing: "var(--tracking-label)",
-            textTransform: "uppercase",
-            color: "var(--text-body)",
-          }}
-        >
-          {label}
-        </span>
-      ) : null}
+      {label ? <span style={fieldLabelStyle}>{label}</span> : null}
       <span
         style={{
           display: "flex",

@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, CSSProperties, MouseEvent, ReactNode } from "react";
 import { useState } from "react";
 import { Icon } from "./Icon";
-import { M } from "@/lib/motion";
+import { useCurtainNav } from "@/lib/useCurtainNav";
 
 const SIZES = {
   sm: { height: 38, padding: "0 16px", fontSize: "var(--text-sm)", icon: 15 },
@@ -58,10 +57,6 @@ export interface ButtonProps
   style?: CSSProperties;
 }
 
-function isInternal(href?: string) {
-  return !!href && href.startsWith("/");
-}
-
 export function Button({
   children,
   variant = "primary",
@@ -77,9 +72,8 @@ export function Button({
 }: ButtonProps) {
   const [hover, setHover] = useState(false);
   const [active, setActive] = useState(false);
-  const router = useRouter();
+  const { internal, navigate } = useCurtainNav(href);
   const s = SIZES[size] || SIZES.md;
-  const internal = isInternal(href);
 
   const css: CSSProperties = {
     display: fullWidth ? "flex" : "inline-flex",
@@ -109,7 +103,7 @@ export function Button({
     if (disabled) return;
     if (internal) {
       e.preventDefault();
-      M.curtain(() => router.push(href!));
+      navigate();
     }
     (onClick as (e: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void | undefined)?.(e);
   };

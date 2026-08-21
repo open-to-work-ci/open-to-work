@@ -2,7 +2,7 @@
 
 import { Badge, Button, Icon } from "@/components/ds";
 import { Schema } from "@/components/site/dia";
-import { K, Marquee, Sec, Wrap } from "@/components/site/ui";
+import { CtaBand, K, Marquee, Sec, Wrap } from "@/components/site/ui";
 import { SERVICES } from "@/lib/data";
 
 export function ServicesView() {
@@ -82,24 +82,12 @@ export function ServicesView() {
           </div>
         </Sec>
       ))}
-      <Sec tone="deep" tight>
-        <div className="split" style={{ alignItems: "end" }}>
-          <div className="stack-lg">
-            <K sig>Prochaine étape</K>
-            <h2 className="h-1" data-split style={{ color: "#fff", maxWidth: "18ch" }}>
-              Dites-nous ce qui ne fonctionne pas aujourd&apos;hui.
-            </h2>
-          </div>
-          <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
-            <p className="lead" style={{ color: "var(--text-muted)" }}>
-              Un membre de l&apos;équipe technique vous répond sous 24 heures ouvrées. Pas de service commercial dans la boucle.
-            </p>
-            <Button size="lg" iconRight="arrow-right" data-magnetic href="/contact">
-              Parlons de votre projet
-            </Button>
-          </div>
-        </div>
-      </Sec>
+      <CtaBand
+        title="Dites-nous ce qui ne fonctionne pas aujourd'hui."
+        lead="Un membre de l'équipe technique vous répond sous 24 heures ouvrées. Pas de service commercial dans la boucle."
+        cta={{ label: "Parlons de votre projet", href: "/contact" }}
+        maxWidth="18ch"
+      />
     </div>
   );
 }

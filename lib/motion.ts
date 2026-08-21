@@ -15,7 +15,7 @@ import Lenis from "lenis";
 
 type Kill = () => void;
 
-interface SceneHandle {
+export interface SceneHandle {
   heroIn: (delay?: number) => void;
   kill: () => void;
 }
@@ -36,7 +36,6 @@ export const M = {
   lenis: null as Lenis | null,
 
   boot() {
-    if (typeof window === "undefined") return;
     ensurePlugins();
     gsap.defaults({ ease: "expo.out" });
     if (!isReduced()) {
@@ -50,7 +49,6 @@ export const M = {
   },
 
   top() {
-    if (typeof window === "undefined") return;
     if (M.lenis) M.lenis.scrollTo(0, { immediate: true });
     window.scrollTo(0, 0);
   },
@@ -88,7 +86,6 @@ export const M = {
 
   /* ── curseur suiveur + aimant ────────────────────────────────── */
   cursor() {
-    if (typeof window === "undefined") return;
     if (isReduced() || !window.matchMedia("(hover:hover) and (pointer:fine)").matches) return;
     const dot = document.getElementById("cur");
     const ring = document.getElementById("cur-r");
@@ -100,6 +97,9 @@ export const M = {
     const ry = gsap.quickTo(ring, "y", { duration: 0.5, ease: "power3.out" });
     let mx = window.innerWidth / 2;
     let my = window.innerHeight / 2;
+    /* Éléments "aimant" actuellement tirés vers le curseur — évite de rescanner
+       tout le document à chaque pointermove pour les relâcher. */
+    const pulled = new Set<HTMLElement>();
     window.addEventListener(
       "pointermove",
       (e: PointerEvent) => {
@@ -120,11 +120,13 @@ export const M = {
           const r = mag.getBoundingClientRect();
           gsap.to(mag, { x: (mx - (r.left + r.width / 2)) * 0.14, y: (my - (r.top + r.height / 2)) * 0.22, duration: 0.5, ease: "power3.out" });
           mag.dataset.pulled = "1";
+          pulled.add(mag);
         }
-        document.querySelectorAll<HTMLElement>('[data-magnetic][data-pulled="1"]').forEach((el) => {
+        pulled.forEach((el) => {
           if (el !== mag) {
             gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,0.5)" });
             el.dataset.pulled = "0";
+            pulled.delete(el);
           }
         });
       },
@@ -134,7 +136,6 @@ export const M = {
 
   /* ── barre de navigation : masquage + inversion sur fond profond ── */
   nav() {
-    if (typeof window === "undefined") return;
     const nav = document.getElementById("nav");
     if (!nav) return;
     let last = 0;
@@ -234,188 +235,200 @@ export const M = {
 
   /* ── scène : tout le câblage d'un écran ──────────────────────── */
   scene(root: HTMLElement): SceneHandle {
+    // Tout ce qui est créé de façon synchrone dans ce callback (tweens,
+    // ScrollTriggers) est suivi par ce contexte GSAP et révoqué d'un bloc par
+    // ctx.revert() — c'est ce qui permet à AppChrome de ne tuer, à chaque
+    // changement de route, que le câblage de CETTE scène plutôt que tous les
+    // ScrollTriggers de l'app (y compris celui, créé une seule fois par
+    // M.nav(), qui gère le masquage de la barre de navigation).
     const kills: Kill[] = [];
-    const q = <T extends HTMLElement = HTMLElement>(s: string) => Array.from(root.querySelectorAll<T>(s));
+    const ctx = gsap.context(() => {
+      const q = <T extends HTMLElement = HTMLElement>(s: string) => Array.from(root.querySelectorAll<T>(s));
 
-    /* progression de lecture */
-    gsap.to("#prog", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.25 } });
+      /* progression de lecture — élément passé par référence (pas par sélecteur
+         texte) : #prog est un frère de root dans le DOM, hors de la portée que
+         gsap.context() restreint aux descendants de root pour les sélecteurs. */
+      const progEl = document.getElementById("prog");
+      if (progEl) gsap.to(progEl, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.25 } });
 
-    /* titres : lignes masquées */
-    q("[data-split]").forEach((el) => {
-      if (el.dataset.split === "hero") return;
-      const lines = M.split(el);
-      gsap.fromTo(lines, { yPercent: 112 }, { yPercent: 0, duration: 1, stagger: 0.07, scrollTrigger: { trigger: el, start: "top 88%" } });
-    });
-
-    /* blocs et enfants décalés */
-    q("[data-rv]").forEach((el) => {
-      const kids = Array.from(el.querySelectorAll<HTMLElement>("[data-rvi]"));
-      const st = { trigger: el, start: "top 88%" };
-      if (kids.length) gsap.fromTo(kids, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, stagger: 0.08, scrollTrigger: st });
-      else gsap.fromTo(el, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, scrollTrigger: st });
-    });
-
-    /* médias : dévoilement par volet */
-    q(".rv").forEach((el) => {
-      const inner = el.firstElementChild as HTMLElement | null;
-      if (inner) gsap.fromTo(inner, { yPercent: 101, scale: 1.04 }, { yPercent: 0, scale: 1, duration: 1.25, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
-    });
-
-    /* compteurs — avec écriture finale de secours si le ticker n'avance pas */
-    q("[data-count]").forEach((el) => {
-      const to = parseFloat(el.dataset.count || "0");
-      const o = { v: 0 };
-      const write = (n: number) => {
-        el.textContent = String(Math.round(n));
-      };
-      const tw = gsap.to(o, {
-        v: to,
-        duration: 1.5,
-        ease: "power2.out",
-        scrollTrigger: { trigger: el, start: "top 92%" },
-        onUpdate() {
-          write(o.v);
-        },
+      /* titres : lignes masquées */
+      q("[data-split]").forEach((el) => {
+        if (el.dataset.split === "hero") return;
+        const lines = M.split(el);
+        gsap.fromTo(lines, { yPercent: 112 }, { yPercent: 0, duration: 1, stagger: 0.07, scrollTrigger: { trigger: el, start: "top 88%" } });
       });
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 92%",
-        once: true,
-        onEnter() {
-          setTimeout(() => {
-            if (tw.progress() < 1) write(to);
-          }, 1900);
-        },
+
+      /* blocs et enfants décalés */
+      q("[data-rv]").forEach((el) => {
+        const kids = Array.from(el.querySelectorAll<HTMLElement>("[data-rvi]"));
+        const st = { trigger: el, start: "top 88%" };
+        if (kids.length) gsap.fromTo(kids, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, stagger: 0.08, scrollTrigger: st });
+        else gsap.fromTo(el, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, scrollTrigger: st });
       });
-    });
 
-    /* bandeaux défilants */
-    q("[data-mq]").forEach((el) => {
-      const track = el.querySelector<HTMLElement>(".mq-t");
-      if (!track) return;
-      const dir = el.dataset.mq === "rev" ? 1 : -1;
-      const tw = gsap.fromTo(track, { xPercent: dir === -1 ? 0 : -50 }, { xPercent: dir === -1 ? -50 : 0, duration: 26, ease: "none", repeat: -1 });
-      kills.push(() => tw.kill());
-    });
-
-    /* manifeste : mots qui s'allument au scroll */
-    q("[data-manifest]").forEach((el) => {
-      if (el.dataset.done !== "1") {
-        const sig = (el.dataset.manifest || "").split("|").filter(Boolean);
-        el.innerHTML = (el.textContent || "")
-          .trim()
-          .split(/\s+/)
-          .map((w) => `<w${sig.some((s) => w.indexOf(s) === 0) ? ' class="sig"' : ""}>${w}</w>`)
-          .join(" ");
-        el.dataset.done = "1";
-      }
-      const words = Array.from(el.querySelectorAll<HTMLElement>("w"));
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 78%",
-        end: "bottom 42%",
-        scrub: true,
-        onUpdate(self) {
-          const n = Math.round(self.progress * words.length);
-          words.forEach((w, i) => w.classList.toggle("on", i < n));
-        },
+      /* médias : dévoilement par volet */
+      q(".rv").forEach((el) => {
+        const inner = el.firstElementChild as HTMLElement | null;
+        if (inner) gsap.fromTo(inner, { yPercent: 101, scale: 1.04 }, { yPercent: 0, scale: 1, duration: 1.25, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
       });
-    });
 
-    /* étapes épinglées (sticky CSS + scrub) */
-    q("[data-steps]").forEach((el) => {
-      const panes = Array.from(el.querySelectorAll<HTMLElement>(".stp-p"));
-      const nEl = el.querySelector<HTMLElement>(".stp-n");
-      const bar = el.querySelector<HTMLElement>(".stp-bar i");
-      el.style.height = panes.length * 78 + 40 + "vh";
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate(self) {
-          const i = Math.min(panes.length - 1, Math.floor(self.progress * panes.length * 0.999));
-          panes.forEach((p, k) => {
-            const on = k === i;
-            if ((p.dataset.on === "1") !== on) {
-              p.dataset.on = on ? "1" : "0";
-              if (on) gsap.fromTo(p, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" });
-            }
-          });
-          if (nEl) nEl.textContent = "0" + (i + 1);
-          if (bar) bar.style.transform = "scaleX(" + self.progress.toFixed(3) + ")";
-        },
-      });
-    });
-
-    /* séquence horizontale */
-    q("[data-hs]").forEach((el) => {
-      const track = el.querySelector<HTMLElement>(".hs-track");
-      if (!track || window.innerWidth < 960) {
-        el.style.height = "auto";
-        el.dataset.off = "1";
-        return;
-      }
-      el.dataset.off = "0";
-      const set = () => {
-        const dist = Math.max(0, track.scrollWidth - window.innerWidth + 40);
-        el.style.height = window.innerHeight + dist + "px";
-        return dist;
-      };
-      let dist = set();
-      const st = ScrollTrigger.create({
-        trigger: el,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.6,
-        invalidateOnRefresh: true,
-        onRefresh() {
-          dist = set();
-        },
-        onUpdate(self) {
-          gsap.set(track, { x: -dist * self.progress });
-        },
-      });
-      kills.push(() => st.kill());
-    });
-
-    /* aperçu qui suit le curseur sur la liste de services */
-    const peek = document.getElementById("peek");
-    const rows = q("[data-peek]");
-    if (peek && rows.length && window.matchMedia("(hover:hover) and (pointer:fine)").matches) {
-      const px = gsap.quickTo(peek, "x", { duration: 0.55, ease: "power3.out" });
-      const py = gsap.quickTo(peek, "y", { duration: 0.55, ease: "power3.out" });
-      const shots = Array.from(peek.children) as HTMLElement[];
-      const onMove = (e: PointerEvent) => {
-        px(e.clientX);
-        py(e.clientY);
-      };
-      rows.forEach((r) => {
-        r.addEventListener("mouseenter", () => {
-          const i = parseInt(r.dataset.peek || "0", 10);
-          shots.forEach((s, k) => gsap.set(s, { display: k === i ? "block" : "none" }));
-          gsap.to(peek, { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" });
+      /* compteurs — un seul ScrollTrigger : l'écriture finale de secours (si
+         le ticker n'avance pas) se déclenche depuis le onEnter du tween. */
+      q("[data-count]").forEach((el) => {
+        const to = parseFloat(el.dataset.count || "0");
+        const o = { v: 0 };
+        const write = (n: number) => {
+          el.textContent = String(Math.round(n));
+        };
+        let tw: gsap.core.Tween | undefined;
+        tw = gsap.to(o, {
+          v: to,
+          duration: 1.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 92%",
+            once: true,
+            onEnter() {
+              setTimeout(() => {
+                if (!tw || tw.progress() < 1) write(to);
+              }, 1900);
+            },
+          },
+          onUpdate() {
+            write(o.v);
+          },
         });
-        r.addEventListener("mouseleave", () => gsap.to(peek, { opacity: 0, scale: 0.94, duration: 0.3 }));
       });
-      window.addEventListener("pointermove", onMove, { passive: true });
-      kills.push(() => {
-        window.removeEventListener("pointermove", onMove);
-        gsap.set(peek, { opacity: 0 });
-      });
-    }
 
-    /* inversion du curseur et de la barre sur les fonds profonds */
-    q('[data-theme="dark"]').forEach((el) => {
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 40px",
-        end: "bottom 40px",
-        onToggle(self) {
-          document.body.classList.toggle("cur-dark", self.isActive);
-        },
+      /* bandeaux défilants */
+      q("[data-mq]").forEach((el) => {
+        const track = el.querySelector<HTMLElement>(".mq-t");
+        if (!track) return;
+        const dir = el.dataset.mq === "rev" ? 1 : -1;
+        gsap.fromTo(track, { xPercent: dir === -1 ? 0 : -50 }, { xPercent: dir === -1 ? -50 : 0, duration: 26, ease: "none", repeat: -1 });
       });
-    });
+
+      /* manifeste : mots qui s'allument au scroll */
+      q("[data-manifest]").forEach((el) => {
+        if (el.dataset.done !== "1") {
+          const sig = (el.dataset.manifest || "").split("|").filter(Boolean);
+          el.innerHTML = (el.textContent || "")
+            .trim()
+            .split(/\s+/)
+            .map((w) => `<w${sig.some((s) => w.indexOf(s) === 0) ? ' class="sig"' : ""}>${w}</w>`)
+            .join(" ");
+          el.dataset.done = "1";
+        }
+        const words = Array.from(el.querySelectorAll<HTMLElement>("w"));
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 78%",
+          end: "bottom 42%",
+          scrub: true,
+          onUpdate(self) {
+            const n = Math.round(self.progress * words.length);
+            words.forEach((w, i) => w.classList.toggle("on", i < n));
+          },
+        });
+      });
+
+      /* étapes épinglées (sticky CSS + scrub) */
+      q("[data-steps]").forEach((el) => {
+        const panes = Array.from(el.querySelectorAll<HTMLElement>(".stp-p"));
+        const nEl = el.querySelector<HTMLElement>(".stp-n");
+        const bar = el.querySelector<HTMLElement>(".stp-bar i");
+        el.style.height = panes.length * 78 + 40 + "vh";
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+          onUpdate(self) {
+            const i = Math.min(panes.length - 1, Math.floor(self.progress * panes.length * 0.999));
+            panes.forEach((p, k) => {
+              const on = k === i;
+              if ((p.dataset.on === "1") !== on) {
+                p.dataset.on = on ? "1" : "0";
+                if (on) gsap.fromTo(p, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" });
+              }
+            });
+            if (nEl) nEl.textContent = "0" + (i + 1);
+            if (bar) bar.style.transform = "scaleX(" + self.progress.toFixed(3) + ")";
+          },
+        });
+      });
+
+      /* séquence horizontale */
+      q("[data-hs]").forEach((el) => {
+        const track = el.querySelector<HTMLElement>(".hs-track");
+        if (!track || window.innerWidth < 960) {
+          el.style.height = "auto";
+          el.dataset.off = "1";
+          return;
+        }
+        el.dataset.off = "0";
+        const set = () => {
+          const dist = Math.max(0, track.scrollWidth - window.innerWidth + 40);
+          el.style.height = window.innerHeight + dist + "px";
+          return dist;
+        };
+        let dist = set();
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          onRefresh() {
+            dist = set();
+          },
+          onUpdate(self) {
+            gsap.set(track, { x: -dist * self.progress });
+          },
+        });
+      });
+
+      /* aperçu qui suit le curseur sur la liste de services — écouteurs DOM
+         bruts (pas des animations GSAP), donc suivis dans `kills` plutôt que
+         par le contexte. */
+      const peek = document.getElementById("peek");
+      const rows = q("[data-peek]");
+      if (peek && rows.length && window.matchMedia("(hover:hover) and (pointer:fine)").matches) {
+        const px = gsap.quickTo(peek, "x", { duration: 0.55, ease: "power3.out" });
+        const py = gsap.quickTo(peek, "y", { duration: 0.55, ease: "power3.out" });
+        const shots = Array.from(peek.children) as HTMLElement[];
+        const onMove = (e: PointerEvent) => {
+          px(e.clientX);
+          py(e.clientY);
+        };
+        rows.forEach((r) => {
+          r.addEventListener("mouseenter", () => {
+            const i = parseInt(r.dataset.peek || "0", 10);
+            shots.forEach((s, k) => gsap.set(s, { display: k === i ? "block" : "none" }));
+            gsap.to(peek, { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" });
+          });
+          r.addEventListener("mouseleave", () => gsap.to(peek, { opacity: 0, scale: 0.94, duration: 0.3 }));
+        });
+        window.addEventListener("pointermove", onMove, { passive: true });
+        kills.push(() => {
+          window.removeEventListener("pointermove", onMove);
+          gsap.set(peek, { opacity: 0 });
+        });
+      }
+
+      /* inversion du curseur et de la barre sur les fonds profonds */
+      q('[data-theme="dark"]').forEach((el) => {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 40px",
+          end: "bottom 40px",
+          onToggle(self) {
+            document.body.classList.toggle("cur-dark", self.isActive);
+          },
+        });
+      });
+    }, root);
 
     /* hero : au premier chargement, l'entrée est jouée par le préchargeur */
     const hero = root.querySelector<HTMLElement>('[data-split="hero"]');
@@ -442,12 +455,17 @@ export const M = {
       ScrollTrigger.refresh();
     }, 900);
 
-    return { heroIn, kill: () => kills.forEach((f) => f()) };
+    return {
+      heroIn,
+      kill: () => {
+        kills.forEach((f) => f());
+        ctx.revert();
+      },
+    };
   },
 
   /* ── préchargement compté ────────────────────────────────────── */
   preload(done: (delay: number) => void) {
-    if (typeof document === "undefined") return done(0);
     const pre = document.getElementById("pre");
     if (!pre) return done(0);
     if (isReduced()) {
@@ -497,10 +515,6 @@ export const M = {
 
   /* ── rideau de transition entre écrans ───────────────────────── */
   curtain(swap: () => void) {
-    if (typeof document === "undefined") {
-      swap();
-      return;
-    }
     const cols = Array.from(document.querySelectorAll<HTMLElement>("#curtain i"));
     if (isReduced() || !cols.length) {
       swap();

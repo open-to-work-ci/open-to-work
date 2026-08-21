@@ -2,7 +2,7 @@
 
 import { Button, Rule } from "@/components/ds";
 import { Schema } from "@/components/site/dia";
-import { Head, K, Sec, Steps, Wrap } from "@/components/site/ui";
+import { CtaBand, Head, K, Sec, Steps, Wrap } from "@/components/site/ui";
 import { PROCESS } from "@/lib/data";
 
 export function MethodView() {
@@ -85,24 +85,11 @@ export function MethodView() {
         </div>
       </Sec>
 
-      <Sec tone="deep" tight>
-        <div className="split" style={{ alignItems: "end" }}>
-          <div className="stack-lg">
-            <K sig>Prochaine étape</K>
-            <h2 className="h-1" data-split style={{ color: "#fff", maxWidth: "16ch" }}>
-              Commençons par regarder votre situation.
-            </h2>
-          </div>
-          <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
-            <p className="lead" style={{ color: "var(--text-muted)" }}>
-              Décrivez-nous ce qui vous ralentit aujourd&apos;hui. Nous vous disons franchement si nous sommes la bonne équipe, et ce que cela représente.
-            </p>
-            <Button size="lg" iconRight="arrow-right" data-magnetic href="/contact">
-              Nous écrire
-            </Button>
-          </div>
-        </div>
-      </Sec>
+      <CtaBand
+        title="Commençons par regarder votre situation."
+        lead="Décrivez-nous ce qui vous ralentit aujourd'hui. Nous vous disons franchement si nous sommes la bonne équipe, et ce que cela représente."
+        cta={{ label: "Nous écrire", href: "/contact" }}
+      />
     </div>
   );
 }

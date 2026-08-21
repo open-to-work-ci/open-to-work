@@ -1,16 +1,13 @@
 "use client";
 
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
-import { M } from "@/lib/motion";
+import { M, type SceneHandle } from "@/lib/motion";
 import { Foot } from "./Foot";
 import { Nav } from "./Nav";
 import { Peek } from "./Peek";
-
-type SceneHandle = ReturnType<typeof M.scene>;
 
 export function AppChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "/";
@@ -23,11 +20,12 @@ export function AppChrome({ children }: { children: ReactNode }) {
     M.boot();
   }, []);
 
-  // À chaque changement de route : tuer les triggers de l'écran précédent
-  // (y compris ceux du masquage de nav et de la barre #prog), puis tout
-  // recâbler dans l'ordre attendu par M.nav()/M.scene() ci-dessous.
+  // À chaque changement de route : ne tuer que le câblage GSAP de l'écran
+  // précédent (scene.current.kill() révoque le contexte GSAP scopé à cette
+  // scène — voir lib/motion.ts) puis câbler la nouvelle scène. Le trigger de
+  // masquage de la nav, créé une seule fois par M.nav() dans boot(), n'est
+  // jamais touché par ce cycle et n'a donc pas besoin d'être recréé ici.
   useEffect(() => {
-    ScrollTrigger.getAll().forEach((t) => t.kill());
     if (scene.current) scene.current.kill();
     if (field.current) {
       field.current();
@@ -43,7 +41,6 @@ export function AppChrome({ children }: { children: ReactNode }) {
       scene.current = s;
       const c = document.getElementById("field") as HTMLCanvasElement | null;
       if (c) field.current = M.field(c);
-      M.nav();
       if (first.current) {
         first.current = false;
         M.preload((d) => s.heroIn(d));

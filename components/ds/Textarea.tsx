@@ -2,6 +2,7 @@
 
 import type { CSSProperties, TextareaHTMLAttributes } from "react";
 import { useId, useState } from "react";
+import { fieldLabelStyle } from "./fieldLabelStyle";
 
 export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "style"> {
   label?: string;
@@ -15,20 +16,7 @@ export function Textarea({ label, hint, error, rows = 5, id, style, ...rest }: T
   const uid = id || useId();
   return (
     <label htmlFor={uid} style={{ display: "grid", gap: "var(--space-2)", ...style }}>
-      {label ? (
-        <span
-          style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: "var(--text-xs)",
-            fontWeight: "var(--fw-semibold)",
-            letterSpacing: "var(--tracking-label)",
-            textTransform: "uppercase",
-            color: "var(--text-body)",
-          }}
-        >
-          {label}
-        </span>
-      ) : null}
+      {label ? <span style={fieldLabelStyle}>{label}</span> : null}
       <textarea
         id={uid}
         rows={rows}

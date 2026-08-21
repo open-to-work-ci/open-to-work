@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { Icon } from "@/components/ds";
+import { Button, Icon } from "@/components/ds";
 import type { ProcessStep } from "@/lib/data";
 
 export function Wrap({
@@ -112,6 +112,109 @@ export function Marquee({ items, dir, tone }: { items: string[]; dir?: "rev"; to
         {run(0)}
         {run(1)}
       </div>
+    </div>
+  );
+}
+
+/** Closing "Prochaine étape" band — repeated near-verbatim at the end of every page. */
+export function CtaBand({
+  title,
+  lead,
+  cta,
+  secondaryCta,
+  maxWidth = "16ch",
+}: {
+  title: ReactNode;
+  lead: ReactNode;
+  cta: { label: ReactNode; href: string };
+  secondaryCta?: { label: ReactNode; href: string };
+  maxWidth?: string;
+}) {
+  return (
+    <Sec tone="deep" tight>
+      <div className="split" style={{ alignItems: "end" }}>
+        <div className="stack-lg">
+          <K sig>Prochaine étape</K>
+          <h2 className="h-1" data-split style={{ color: "#fff", maxWidth }}>
+            {title}
+          </h2>
+        </div>
+        <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
+          <p className="lead" style={{ color: "var(--text-muted)" }}>
+            {lead}
+          </p>
+          <div className="row">
+            <Button size="lg" iconRight="arrow-right" data-magnetic href={cta.href}>
+              {cta.label}
+            </Button>
+            {secondaryCta ? (
+              <Button
+                size="lg"
+                variant="outline"
+                style={{ color: "#fff", borderColor: "color-mix(in oklab,#fff 28%,transparent)" }}
+                data-magnetic
+                href={secondaryCta.href}
+              >
+                {secondaryCta.label}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </Sec>
+  );
+}
+
+/** Bordered icon+index+title+description card — shared by the "Nos règles" (piliers) grids. */
+export function PillarCard({
+  icon,
+  index,
+  title,
+  description,
+  maxWidth = "20ch",
+}: {
+  icon: string;
+  index: number;
+  title: ReactNode;
+  description: ReactNode;
+  maxWidth?: string;
+}) {
+  return (
+    <div className="stack" data-rvi style={{ gap: "var(--space-5)", paddingTop: "var(--space-7)", borderTop: "1px solid var(--border-default)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Icon name={icon} size={20} style={{ background: "var(--text-brand)" }} />
+        <span className="mono">0{index}</span>
+      </div>
+      <h3 className="h-3" style={{ maxWidth }}>
+        {title}
+      </h3>
+      <p style={{ font: "var(--type-body)", color: "var(--text-muted)", maxWidth: "48ch" }}>{description}</p>
+    </div>
+  );
+}
+
+/** Numeric counter + label + description — shared by the "Ce que nous garantissons" grids. */
+export function EngagementStat({
+  value,
+  suffix,
+  label,
+  description,
+  size = "var(--text-5xl)",
+}: {
+  value: number;
+  suffix: string;
+  label: ReactNode;
+  description: ReactNode;
+  size?: string;
+}) {
+  return (
+    <div className="stack" data-rvi style={{ gap: "var(--space-5)" }}>
+      <span className="num" style={{ fontSize: size }}>
+        <span data-count={value}>0</span>
+        {suffix}
+      </span>
+      <span style={{ font: "var(--fw-semibold) var(--text-base)/1.3 var(--font-sans)", color: "var(--text-strong)" }}>{label}</span>
+      <span style={{ font: "var(--fw-regular) var(--text-sm)/1.6 var(--font-sans)", color: "var(--text-muted)" }}>{description}</span>
     </div>
   );
 }

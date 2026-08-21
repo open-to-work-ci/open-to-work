@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { CSSProperties, HTMLAttributes, MouseEvent } from "react";
 import { useState } from "react";
 import { Icon } from "./Icon";
-import { M } from "@/lib/motion";
+import { useCurtainNav } from "@/lib/useCurtainNav";
 
 export interface ServiceRowProps extends Omit<HTMLAttributes<HTMLAnchorElement>, "style"> {
   index?: string;
@@ -17,10 +16,6 @@ export interface ServiceRowProps extends Omit<HTMLAttributes<HTMLAnchorElement>,
   onClick?: () => void;
   last?: boolean;
   style?: CSSProperties;
-}
-
-function isInternal(href?: string) {
-  return !!href && href.startsWith("/");
 }
 
 /** Large numbered service row — the airy, editorial alternative to a card grid. */
@@ -36,13 +31,12 @@ export function ServiceRow({
   ...rest
 }: ServiceRowProps) {
   const [hover, setHover] = useState(false);
-  const router = useRouter();
-  const internal = isInternal(href);
+  const { internal, navigate } = useCurtainNav(href);
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (internal) {
       e.preventDefault();
-      M.curtain(() => router.push(href!));
+      navigate();
       return;
     }
     if (onClick) {

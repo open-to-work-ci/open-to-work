@@ -2,7 +2,7 @@
 
 import { Accordion, Button, Icon, Rule, ServiceRow } from "@/components/ds";
 import { Phase, Schema } from "@/components/site/dia";
-import { Head, K, Marquee, Sec, Wrap } from "@/components/site/ui";
+import { CtaBand, EngagementStat, Head, K, Marquee, PillarCard, Sec, Wrap } from "@/components/site/ui";
 import { ENGAGEMENTS, FAQ, PILIERS, PROCESS, SERVICES } from "@/lib/data";
 
 export function HomeView() {
@@ -114,14 +114,7 @@ export function HomeView() {
         <Rule label="Ce que nous garantissons par écrit" />
         <div className="grid-4" style={{ marginTop: "clamp(36px,4vw,64px)" }} data-rv>
           {ENGAGEMENTS.map((e) => (
-            <div className="stack" key={e.k} data-rvi style={{ gap: "var(--space-5)" }}>
-              <span className="num" style={{ fontSize: "var(--text-5xl)" }}>
-                <span data-count={e.v}>0</span>
-                {e.suf}
-              </span>
-              <span style={{ font: "var(--fw-semibold) var(--text-base)/1.3 var(--font-sans)", color: "var(--text-strong)" }}>{e.k}</span>
-              <span style={{ font: "var(--fw-regular) var(--text-sm)/1.6 var(--font-sans)", color: "var(--text-muted)" }}>{e.d}</span>
-            </div>
+            <EngagementStat key={e.k} value={e.v} suffix={e.suf} label={e.k} description={e.d} />
           ))}
         </div>
       </Sec>
@@ -137,16 +130,7 @@ export function HomeView() {
         />
         <div className="grid-2" style={{ marginTop: "clamp(40px,5vw,80px)", gap: "clamp(32px,4vw,72px)" }} data-rv>
           {PILIERS.map((p, i) => (
-            <div className="stack" key={p.t} data-rvi style={{ gap: "var(--space-5)", paddingTop: "var(--space-7)", borderTop: "1px solid var(--border-default)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Icon name={p.icon} size={20} style={{ background: "var(--text-brand)" }} />
-                <span className="mono">0{i + 1}</span>
-              </div>
-              <h3 className="h-3" style={{ maxWidth: "20ch" }}>
-                {p.t}
-              </h3>
-              <p style={{ font: "var(--type-body)", color: "var(--text-muted)", maxWidth: "48ch" }}>{p.d}</p>
-            </div>
+            <PillarCard key={p.t} icon={p.icon} index={i + 1} title={p.t} description={p.d} />
           ))}
         </div>
         <div style={{ marginTop: "clamp(48px,6vw,96px)" }}>
@@ -210,35 +194,12 @@ export function HomeView() {
       </Sec>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <Sec tone="deep" tight>
-        <div className="split" style={{ alignItems: "end" }}>
-          <div className="stack-lg">
-            <K sig>Prochaine étape</K>
-            <h2 className="h-1" data-split style={{ color: "#fff", maxWidth: "16ch" }}>
-              Trente minutes pour savoir si nous sommes la bonne équipe.
-            </h2>
-          </div>
-          <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
-            <p className="lead" style={{ color: "var(--text-muted)" }}>
-              Vous repartez avec un avis franc sur votre projet, un ordre de grandeur de budget et les prochaines étapes. Sans engagement.
-            </p>
-            <div className="row">
-              <Button size="lg" iconRight="arrow-right" data-magnetic href="/contact">
-                Nous contacter
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                style={{ color: "#fff", borderColor: "color-mix(in oklab,#fff 28%,transparent)" }}
-                data-magnetic
-                href="/services"
-              >
-                Voir les services
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Sec>
+      <CtaBand
+        title="Trente minutes pour savoir si nous sommes la bonne équipe."
+        lead="Vous repartez avec un avis franc sur votre projet, un ordre de grandeur de budget et les prochaines étapes. Sans engagement."
+        cta={{ label: "Nous contacter", href: "/contact" }}
+        secondaryCta={{ label: "Voir les services", href: "/services" }}
+      />
     </div>
   );
 }

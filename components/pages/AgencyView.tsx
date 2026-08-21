@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, Icon, Rule } from "@/components/ds";
+import { Button, Rule } from "@/components/ds";
 import { Schema } from "@/components/site/dia";
-import { Head, K, Marquee, Sec, Wrap } from "@/components/site/ui";
+import { CtaBand, EngagementStat, Head, K, Marquee, PillarCard, Sec, Wrap } from "@/components/site/ui";
 import { ENGAGEMENTS, PILIERS, TEAM } from "@/lib/data";
 
 export function AgencyView() {
@@ -44,16 +44,7 @@ export function AgencyView() {
       <Sec tone="sub" tight>
         <div className="grid-2" style={{ gap: "clamp(32px,4vw,72px)" }} data-rv>
           {PILIERS.map((p, i) => (
-            <div className="stack" key={p.t} data-rvi style={{ gap: "var(--space-5)", paddingTop: "var(--space-7)", borderTop: "1px solid var(--border-default)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Icon name={p.icon} size={20} style={{ background: "var(--text-brand)" }} />
-                <span className="mono">0{i + 1}</span>
-              </div>
-              <h3 className="h-3" style={{ maxWidth: "22ch" }}>
-                {p.t}
-              </h3>
-              <p style={{ font: "var(--type-body)", color: "var(--text-muted)", maxWidth: "48ch" }}>{p.d}</p>
-            </div>
+            <PillarCard key={p.t} icon={p.icon} index={i + 1} title={p.t} description={p.d} maxWidth="22ch" />
           ))}
         </div>
       </Sec>
@@ -93,35 +84,15 @@ export function AgencyView() {
         <Rule label="Ce que nous garantissons par écrit" />
         <div className="grid-4" style={{ marginTop: "clamp(36px,4vw,64px)" }} data-rv>
           {ENGAGEMENTS.map((e) => (
-            <div className="stack" key={e.k} data-rvi style={{ gap: "var(--space-5)" }}>
-              <span className="num" style={{ fontSize: "var(--text-4xl)" }}>
-                <span data-count={e.v}>0</span>
-                {e.suf}
-              </span>
-              <span style={{ font: "var(--fw-semibold) var(--text-base)/1.3 var(--font-sans)", color: "var(--text-strong)" }}>{e.k}</span>
-              <span style={{ font: "var(--fw-regular) var(--text-sm)/1.6 var(--font-sans)", color: "var(--text-muted)" }}>{e.d}</span>
-            </div>
+            <EngagementStat key={e.k} value={e.v} suffix={e.suf} label={e.k} description={e.d} size="var(--text-4xl)" />
           ))}
         </div>
       </Sec>
-      <Sec tone="deep" tight>
-        <div className="split" style={{ alignItems: "end" }}>
-          <div className="stack-lg">
-            <K sig>Prochaine étape</K>
-            <h2 className="h-1" data-split style={{ color: "#fff", maxWidth: "16ch" }}>
-              Parlons de ce qui vous ralentit.
-            </h2>
-          </div>
-          <div className="stack" style={{ gap: "var(--space-8)", justifyItems: "start" }}>
-            <p className="lead" style={{ color: "var(--text-muted)" }}>
-              Trente minutes, un avis franc, aucun engagement.
-            </p>
-            <Button size="lg" iconRight="arrow-right" data-magnetic href="/contact">
-              Parlons de votre projet
-            </Button>
-          </div>
-        </div>
-      </Sec>
+      <CtaBand
+        title="Parlons de ce qui vous ralentit."
+        lead="Trente minutes, un avis franc, aucun engagement."
+        cta={{ label: "Parlons de votre projet", href: "/contact" }}
+      />
     </div>
   );
 }

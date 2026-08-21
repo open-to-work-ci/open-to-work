@@ -401,3 +401,11 @@ html{scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--otw-gree
 #drawer ::-webkit-scrollbar-thumb:hover,[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--otw-green-200)}
 .hs-track::-webkit-scrollbar{height:6px}
 .hs-track::-webkit-scrollbar-track{background:var(--otw-sand-100);box-shadow:none}
+
+/* ── pages d'état (404, 500, maintenance) ────────────────────── */
+.err-code{font-family:var(--font-display);font-weight:var(--fw-bold);font-size:clamp(104px,15vw,220px);line-height:.74;letter-spacing:-.055em;color:color-mix(in oklab,var(--text-strong) 9%,transparent);margin-bottom:clamp(16px,2vw,28px)}
+.err-rows{border-top:1px solid var(--border-default)}
+.err-r{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:var(--space-6);align-items:baseline;padding:13px 0;border-bottom:1px solid var(--border-hairline)}
+.err-r b{max-width:18ch;font:400 11px/1.4 var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint)}
+.err-r span{font:400 12px/1.4 var(--font-mono);color:var(--text-body);text-align:right;overflow-wrap:anywhere}
+.err-r span.ok{color:var(--text-brand)}

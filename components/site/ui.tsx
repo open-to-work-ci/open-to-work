@@ -199,17 +199,15 @@ export function EngagementStat({
   suffix,
   label,
   description,
-  size = "var(--text-5xl)",
 }: {
   value: number;
   suffix: string;
   label: ReactNode;
   description: ReactNode;
-  size?: string;
 }) {
   return (
     <div className="stack" data-rvi style={{ gap: "var(--space-5)" }}>
-      <span className="num" style={{ fontSize: size }}>
+      <span className="num">
         <span data-count={value}>0</span>
         {suffix}
       </span>

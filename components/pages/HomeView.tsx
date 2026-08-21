@@ -154,7 +154,7 @@ export function HomeView() {
         </Wrap>
       </Sec>
       <div data-hs className="hs" style={{ marginTop: "clamp(40px,5vw,72px)" }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", alignItems: "center" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
           <div className="hs-track">
             {PROCESS.map((p) => (
               <div className="hs-item" key={p.n}>

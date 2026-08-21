@@ -242,7 +242,7 @@ p{margin:0;text-wrap:pretty}
 .lead{font:var(--type-lead);color:var(--text-muted);max-width:52ch}
 .body{font:var(--type-body);color:var(--text-body);max-width:66ch}
 .mono{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:.02em;color:var(--text-faint)}
-.num{font-family:var(--font-display);font-weight:var(--fw-bold);letter-spacing:var(--tracking-display);line-height:.86;color:var(--text-strong);white-space:nowrap}
+.num{font-family:var(--font-display);font-weight:var(--fw-bold);font-size:clamp(34px,calc(3.6vw - 5.8px),47px);letter-spacing:var(--tracking-display);line-height:.86;color:var(--text-strong);white-space:nowrap}
 .stack{display:grid;gap:var(--space-6)}
 .stack-lg{display:grid;gap:var(--space-9)}
 .row{display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center}
@@ -321,7 +321,7 @@ body.cur-dark #cur-r{border-color:color-mix(in oklab,var(--sig) 60%,transparent)
 .tile:hover .tile-m{border-color:var(--border-brand)}
 .tile-m>*{transition:transform var(--dur-slower) var(--ease-out-expo)}
 .tile:hover .tile-m>*{transform:scale(1.03)}
-.hs{position:relative;overflow:hidden}
+.hs{position:relative}
 .hs-track{display:flex;gap:clamp(24px,3vw,56px);align-items:stretch;padding:0 var(--gutter);will-change:transform}
 .hs-item{flex:0 0 clamp(320px,42vw,620px)}
 @media (max-width:960px){.hs-track{overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:16px}.hs-item{scroll-snap-align:center}}

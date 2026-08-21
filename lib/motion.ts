@@ -351,6 +351,10 @@ export const M = {
               if ((p.dataset.on === "1") !== on) {
                 p.dataset.on = on ? "1" : "0";
                 if (on) gsap.fromTo(p, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" });
+                else {
+                  gsap.killTweensOf(p);
+                  gsap.set(p, { clearProps: "opacity,transform" });
+                }
               }
             });
             if (nEl) nEl.textContent = "0" + (i + 1);

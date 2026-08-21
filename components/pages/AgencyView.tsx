@@ -84,7 +84,7 @@ export function AgencyView() {
         <Rule label="Ce que nous garantissons par écrit" />
         <div className="grid-4" style={{ marginTop: "clamp(36px,4vw,64px)" }} data-rv>
           {ENGAGEMENTS.map((e) => (
-            <EngagementStat key={e.k} value={e.v} suffix={e.suf} label={e.k} description={e.d} size="var(--text-4xl)" />
+            <EngagementStat key={e.k} value={e.v} suffix={e.suf} label={e.k} description={e.d} />
           ))}
         </div>
       </Sec>

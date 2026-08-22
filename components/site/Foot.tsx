@@ -18,8 +18,10 @@ export function Foot() {
     [
       "Contact",
       [
-        { label: "contact@otw.example", href: "/contact" },
+        { label: "contact@otw.ci", href: "/contact" },
+        // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
         { label: "Téléphone à compléter", href: "/contact" },
+        // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
         { label: "Adresse à compléter", href: "/contact" },
       ],
     ],

@@ -49,6 +49,7 @@ export function AgencyView() {
         </div>
       </Sec>
       <Sec>
+        {/* TODO(otw-contact): remplacer par la vraie valeur avant mise en production */}
         <Head
           kicker="L'équipe"
           title="Trois personnes, aucun relais commercial."

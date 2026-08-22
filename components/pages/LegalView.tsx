@@ -6,10 +6,12 @@ import { K, Sec } from "@/components/site/ui";
 const BLOCKS = [
   {
     t: "Éditeur du site",
+    // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
     c: "OTW — Open To Work. Forme juridique, capital, numéro d'immatriculation et siège social à compléter. Responsable de la publication : à compléter.",
   },
   {
     t: "Hébergement",
+    // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
     c: "Nom, adresse et coordonnées de l'hébergeur à compléter. Les services que nous exploitons pour nos clients font l'objet de contrats distincts, précisant la localisation des données.",
   },
   {
@@ -41,6 +43,7 @@ export function LegalView() {
           <h1 className="h-1" data-split="hero" style={{ maxWidth: "14ch" }}>
             Mentions légales.
           </h1>
+          {/* TODO(otw-contact): remplacer par la vraie valeur avant mise en production */}
           <p className="lead" data-hero-i>
             Page à compléter avec les informations d&apos;immatriculation définitives avant mise en production.
           </p>

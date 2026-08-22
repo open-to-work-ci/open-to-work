@@ -141,7 +141,7 @@ export function Nav() {
           <Button size="lg" iconRight="arrow-right" href="/contact" onClick={() => setOpen(false)}>
             Parlons de votre projet
           </Button>
-          <span className="mono">contact@otw.example</span>
+          <span className="mono">contact@otw.ci</span>
         </div>
       </aside>
     </>

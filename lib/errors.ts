@@ -110,10 +110,12 @@ export const ERRORS: Record<ErrorCode, ErrorContent> = {
     title: "Mise à jour en cours. Le site revient dans quelques minutes.",
     lead: "Nous déployons une nouvelle version. Rien n'est perdu, rien n'est cassé, et les services que nous exploitons pour nos clients ne sont pas concernés.",
     rows: [
+      // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
       { label: "Début de l'intervention", value: "À compléter" },
+      // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
       { label: "Retour prévu", value: "À compléter" },
       { label: "Services clients", value: "Non concernés", ok: true },
-      { label: "Contact pendant l'intervention", value: "contact@otw.example" },
+      { label: "Contact pendant l'intervention", value: "contact@otw.ci" },
     ],
     actions: [
       { label: "Réessayer", reload: true },

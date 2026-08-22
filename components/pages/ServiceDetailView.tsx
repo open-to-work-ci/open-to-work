@@ -13,9 +13,17 @@ export function ServiceDetailView({ service, others }: { service: Service; other
       <Sec style={{ paddingTop: "calc(var(--nav-h) + clamp(48px,7vw,110px))" }} tight>
         <div className="stack-lg">
           <div data-hero-i style={{ display: "flex", gap: "var(--space-6)", alignItems: "center", flexWrap: "wrap" }}>
-            <NavLink href="/services" className="mono" style={{ background: "none", border: 0, padding: 0 }} data-cursor="link">
-              ← Tous les services
-            </NavLink>
+            <nav aria-label="Fil d'Ariane" className="mono" style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+              <NavLink href="/" style={{ background: "none", border: 0, padding: 0 }} data-cursor="link">
+                Accueil
+              </NavLink>
+              <span aria-hidden="true">/</span>
+              <NavLink href="/services" style={{ background: "none", border: 0, padding: 0 }} data-cursor="link">
+                Services
+              </NavLink>
+              <span aria-hidden="true">/</span>
+              <span>{s.title}</span>
+            </nav>
             <span className="mono">{s.index} / 05</span>
           </div>
           <h1 className="h-hero" data-split="hero" style={{ maxWidth: "13ch" }}>

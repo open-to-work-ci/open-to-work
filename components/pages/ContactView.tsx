@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 import { useState } from "react";
 import { Badge, Button, Checkbox, Icon, Input, Rule, Select, Textarea } from "@/components/ds";
 import { K, Sec } from "@/components/site/ui";
@@ -30,7 +30,10 @@ export function ContactView() {
         </div>
       </Sec>
       <Sec tight style={{ paddingTop: 0 }}>
-        <div className="split" style={{ gridTemplateColumns: "minmax(0,1.15fr) minmax(0,.85fr)", gap: "clamp(40px,5vw,96px)", alignItems: "start" }}>
+        <div
+          className="split"
+          style={{ "--split-cols": "minmax(0,1.15fr) minmax(0,.85fr)", gap: "clamp(40px,5vw,96px)", alignItems: "start" } as CSSProperties}
+        >
           {sent ? (
             <div
               className="stack"
@@ -88,8 +91,10 @@ export function ContactView() {
               </Badge>
               {(
                 [
-                  ["mail", "contact@otw.example"],
+                  ["mail", "contact@otw.ci"],
+                  // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
                   ["phone", "Numéro à compléter"],
+                  // TODO(otw-contact): remplacer par la vraie valeur avant mise en production
                   ["map-pin", "Adresse à compléter"],
                 ] as [string, string][]
               ).map(([ic, v]) => (

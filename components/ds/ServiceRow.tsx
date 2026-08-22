@@ -46,14 +46,6 @@ export function ServiceRow({
   };
 
   const css: CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "auto minmax(0,1fr) minmax(0,0.85fr) auto",
-    alignItems: "start",
-    gap: "var(--space-9)",
-    padding: "var(--space-9) 0",
-    borderTop: "var(--border-width-hairline) solid var(--border-hairline)",
-    borderBottom: last ? "var(--border-width-hairline) solid var(--border-hairline)" : "none",
-    textDecoration: "none",
     background: hover ? "var(--bg-subtle)" : "transparent",
     transition: "background var(--dur-base) var(--ease-standard)",
     ...style,
@@ -65,14 +57,19 @@ export function ServiceRow({
       onClick={handleClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      className="svc-row"
       data-row="service"
+      data-last={last ? "1" : "0"}
       style={css}
       {...rest}
     >
-      <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semibold)", letterSpacing: "var(--tracking-label)", color: "var(--text-faint)", paddingTop: 10 }}>
+      <span
+        data-slot="idx"
+        style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semibold)", letterSpacing: "var(--tracking-label)", color: "var(--text-faint)", paddingTop: 10 }}
+      >
         {index}
       </span>
-      <span style={{ display: "grid", gap: "var(--space-4)" }}>
+      <span data-slot="body" style={{ display: "grid", gap: "var(--space-4)" }}>
         <span
           style={{
             fontFamily: "var(--font-display)",
@@ -95,8 +92,11 @@ export function ServiceRow({
           </span>
         ) : null}
       </span>
-      <span style={{ font: "var(--fw-regular) var(--text-md)/1.65 var(--font-sans)", color: "var(--text-muted)", paddingTop: 4 }}>{description}</span>
+      <span data-slot="desc" style={{ font: "var(--fw-regular) var(--text-md)/1.65 var(--font-sans)", color: "var(--text-muted)", paddingTop: 4 }}>
+        {description}
+      </span>
       <span
+        data-slot="arrow"
         style={{
           display: "grid",
           placeItems: "center",

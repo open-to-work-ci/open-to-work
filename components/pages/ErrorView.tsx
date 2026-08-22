@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { Button, ServiceRow } from "@/components/ds";
 import { Head, K, Sec } from "@/components/site/ui";
@@ -15,7 +16,10 @@ export function ErrorView({ code, retry }: { code: ErrorCode; retry?: () => void
   return (
     <div>
       <Sec style={{ paddingTop: "calc(var(--nav-h) + clamp(48px,6vw,104px))" }} tight>
-        <div className="split" style={{ gridTemplateColumns: "minmax(0,1.1fr) minmax(0,.9fr)", gap: "clamp(40px,6vw,110px)", alignItems: "start" }}>
+        <div
+          className="split"
+          style={{ "--split-cols": "minmax(0,1.1fr) minmax(0,.9fr)", gap: "clamp(40px,6vw,110px)", alignItems: "start" } as CSSProperties}
+        >
           <div className="stack-lg">
             <div data-hero-i>
               <K>{e.kicker}</K>
